@@ -7,20 +7,20 @@ parser = argparse.ArgumentParser()
 parser.add_argument("inputfolder", help="Location of the StackExchange files or subfolders")
 parser.add_argument("outputfolder", help="Export destination folder where subfolders will be created")
 parser.add_argument("-m", "--meta", help="Also export the meta files", action="store_true")
-parser.add_argument("-p", "--progressindicatorvalue", help="Shows nr of rows imported for larger files", type=int, default=1000000)
+parser.add_argument("-p", "--progressindicatorvalue", help="Shows nr of rows imported for larger files", type=int, default=10000000)
 args = parser.parse_args()
 
 start_time = datetime.now() 
 
 tables = {
-    "Badges": ["UserId","Name","Date"],
-    "Comments": ["Id","PostId","Score","Text","CreationDate","UserId"],
-    "Posts": ["Id","PostTypeId","ParentId","AccepedAnswerId","CreationDate","Score","ViewCount","Body","OwnerUserId","LastEditorUserId","LastEditorDisplayName","LastEditDate","LastActivityDate","CommunityOwnedDate","ClosedDate","Title","Tags","AnswerCount","CommentCount","FavoriteCount"],
-    "PostHistory": ["Id","PostHistoryTypeId","PostId","RevisionGUID","CreationDate","UserId","UserDisplayName","Comment","Text","CloseReasonId"],
-    "PostLinks": ["Id","CreationDate","PostId","RelatedPostId","PostLinkTypeId"],
+    "Badges": ["Id","UserId","Name","Date","Class","TagBased"],
+    "Comments": ["Id","PostId","Score","Text","CreationDate","UserDisplayName","UserId","ContentLicense"],
+    "Posts": ["Id","PostTypeId","AcceptedAnswerId","CreationDate","Score","ViewCount","Body","OwnerUserId","LastActivityDate","Title","Tags","AnswerCount","CommentCount","FavoriteCount","ContentLicense"],
+    "PostHistory": ["Id","PostHistoryTypeId","PostId","RevisionGUID","CreationDate","UserId","UserDisplayName","Comment","Text","ContentLicense"],
+    "PostLinks": ["Id","CreationDate","PostId","RelatedPostId","LinkTypeId"],
     "Tags": ["Id","TagName","Count","ExcerptPostId","WikiPostId"],
-    "Users": ["Id","Reputation","CreationDate","DisplayName","EmailHash","LastAccessDate","WebsiteUrl","Location","Age","AboutMe","View","UpVotes","DownVotes"],
-    "Votes": ["Id","PostId","VoteTypeId","CreationDate","UserId","BountyAmount"]
+    "Users": ["Id","Reputation","CreationDate","DisplayName","LastAccessDate","WebsiteUrl","Location","AboutMe","Views","UpVotes","DownVotes","ProfileImageUrl","AccountId"],
+    "Votes": ["Id","PostId","VoteTypeId","UserId","CreationDate","BountyAmount"]
 }
 
 dircounter = 0
@@ -44,6 +44,16 @@ def has_validfiles(dirname, validfiles):
             break
     return _has_validfiles
 
+def transform_column(column):
+    _column = column
+    if str(column) == "False":
+        _column = 0
+    elif str(column) == "True":
+        _column = 1
+    else:
+        _column = column.replace("\r\n","&#xD;&#xA;").replace("\r","&#xD;").replace("\n", "&#xA;")
+    return _column
+
 def write_csv_from_xml(sourcefilename, table, columns, destinationfilename):
     rowcounter = 0
     logging.info("Exporting:  %s - %s.csv", os.path.basename(subfolder), table)
@@ -55,7 +65,7 @@ def write_csv_from_xml(sourcefilename, table, columns, destinationfilename):
         rowcounter += 1
         if (rowcounter % args.progressindicatorvalue == 0):
             logging.info("            Exported %s rows for %s in %s", rowcounter, table, os.path.basename(subfolder))
-        row=[element.attrib[column].replace("\r\n","&#xD;&#xA;").replace("\r","&#xD;").replace("\n", "&#xA;") if column in element.attrib else '' for column in columns]
+        row=[transform_column(element.attrib[column]) if column in element.attrib else '' for column in columns]
         w.writerow(row)
         while element.getprevious() is not None:
             del element.getparent() [0]
@@ -67,8 +77,12 @@ logging.basicConfig(format=format, level=logging.INFO,
 
 subfolders = fast_scandir(inputdir)  
 
-logging.info("Input  directory: %s", inputdir)
-logging.info("Output directory: %s", outputdir)
+
+if has_validfiles(args.inputfolder, stackexchangefiles):
+    subfolders.append(args.inputfolder)
+
+logging.info("Input  folder: %s", inputdir)
+logging.info("Output folder: %s", outputdir)
 
 if args.meta: 
     logging.info("Including meta")
@@ -77,7 +91,7 @@ else:
 
 for subfolder in subfolders:
     if not args.meta:
-        if ".meta." in os.path.basename(subfolder):
+        if ".meta." in os.path.basename(subfolder) or os.path.basename(subfolder).startswith("meta."):
             continue
     if has_validfiles(subfolder, stackexchangefiles):
         
@@ -86,8 +100,8 @@ for subfolder in subfolders:
             dircounter += 1
             for file in stackexchangefiles:
                 if os.path.isfile("{subfolder}\\{file}".format(subfolder=subfolder, file=file)):
-                    write_csv_from_xml("{inputdir}\\{subfolder}\\{sourcefile}".format(inputdir=inputdir, subfolder=os.path.basename(subfolder), sourcefile=file), Path(file).stem, tables[Path(file).stem], "{destinationfolder}\\{subfolder}\\{tablename}.csv".format(destinationfolder=outputdir, subfolder=os.path.basename(subfolder), tablename=Path(file).stem))
+                    write_csv_from_xml("{subfolder}\\{sourcefile}".format(subfolder=subfolder, sourcefile=file), Path(file).stem, tables[Path(file).stem], "{destinationfolder}\\{subfolder}\\{tablename}.csv".format(destinationfolder=outputdir, subfolder=os.path.basename(subfolder), tablename=Path(file).stem))
 
 elapsed_time = datetime.now() - start_time
-logging.info("Finished processing, exported to %s new directories in %s", dircounter, elapsed_time)
+logging.info("Finished processing, exported to %s new folders in %s", dircounter, elapsed_time)
 

@@ -1,0 +1,15 @@
+Create Table Users(
+   Id int NOT NULL,
+   Reputation int NOT NULL,
+   CreationDate datetime NOT NULL,
+   DisplayName nvarchar(80) NULL,
+   LastAccessDate datetime NOT NULL,
+   WebsiteUrl nvarchar(400) NULL,
+   Location nvarchar(200) NULL,
+   AboutMe nvarchar(max) NULL,
+   Views int NOT NULL,
+   UpVotes int NOT NULL,
+   DownVotes int NOT NULL,
+   ProfileImageUrl nvarchar(400) NULL,
+   AccountId int NULL,
+)
