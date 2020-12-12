@@ -15,7 +15,7 @@ start_time = datetime.now()
 tables = {
     "Badges": ["Id","UserId","Name","Date","Class","TagBased"],
     "Comments": ["Id","PostId","Score","Text","CreationDate","UserDisplayName","UserId","ContentLicense"],
-    "Posts": ["Id","PostTypeId","AcceptedAnswerId","CreationDate","Score","ViewCount","Body","OwnerUserId","LastActivityDate","Title","Tags","AnswerCount","CommentCount","FavoriteCount","ContentLicense"],
+    "Posts": ["Id","PostTypeId","ParentId","AcceptedAnswerId","CreationDate","Score","ViewCount","Body","OwnerUserId","LastActivityDate","Title","Tags","AnswerCount","CommentCount","FavoriteCount","ContentLicense"],
     "PostHistory": ["Id","PostHistoryTypeId","PostId","RevisionGUID","CreationDate","UserId","UserDisplayName","Comment","Text","ContentLicense"],
     "PostLinks": ["Id","CreationDate","PostId","RelatedPostId","LinkTypeId"],
     "Tags": ["Id","TagName","Count","ExcerptPostId","WikiPostId"],

@@ -1,6 +1,7 @@
 Create Table Posts(
    Id int NOT NULL,
    PostTypeId tinyint NOT NULL,
+   ParentId int NULL,
    AcceptedAnswerId int NULL,
    CreationDate datetime NOT NULL,
    Score int NOT NULL,
