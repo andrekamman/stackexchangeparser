@@ -12,7 +12,7 @@ This is a professional-grade StackExchange data parser that converts XML dumps f
 - **Main CLI**: `stackexchange_convert.py` - Unified command-line interface supporting both CSV and Parquet output
 - **Legacy scripts**: `stackexchangetocsv.py` and `stackexchangetoparquet.py` - Deprecated individual format scripts (backwards compatibility)
 - **SQL Server integration**: `SQLServer/` directory contains table creation scripts and bulk insert commands
-- **Reference data**: `data/` directory contains CSV files for lookup tables (PostTypes, VoteTypes, etc.)
+- **Reference data**: `data/` directory contains CSV files for lookup tables (PostTypes, VoteTypes, LinkTypes, etc.)
 - **Testing suite**: `tests/` directory with comprehensive test coverage
 - **Documentation**: `example.py` with practical usage examples
 - **Development tools**: Complete setup for professional Python development
@@ -169,7 +169,7 @@ After generating CSV files, use the SQL scripts in `SQLServer/` to create tables
 - **Development dependencies**: Comprehensive tooling in `requirements-dev.txt`
 - **Configuration**: Default config at `config/tables.yaml`, customizable via `-c` parameter
 - **SQL scripts**: Assume SQL Server with BULK INSERT capability (designed for CSV import)
-- **Reference files**: CSV files in `data/` provide lookup values for normalized tables
+- **Reference files**: CSV files in `data/` provide lookup values for normalized tables (including LinkTypes as a helper table for PostLinks)
 - **Modern packaging**: `pyproject.toml` with full metadata and optional dependencies
 
 ## Development Notes
